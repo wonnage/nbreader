@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { CellMeasurer, CellMeasurerCache, List as VirtualizedList, WindowScroller, AutoSizer } from 'react-virtualized';
+import { CellMeasurer, CellMeasurerCache, List as VirtualizedList, WindowScroller, AutoSizer, InfiniteLoader } from 'react-virtualized';
 import Story from './Story.jsx';
 
 export default class List extends Component {
@@ -10,6 +10,8 @@ export default class List extends Component {
       minHeight: 150,
     });
     this.rowRenderer = this.rowRenderer.bind(this);
+    this.registerScroller = this.registerScroller.bind(this);
+    this.isRowLoaded = this.isRowLoaded.bind(this);
   }
 
   rowRenderer({ index, key, parent, style }) {
@@ -27,7 +29,8 @@ export default class List extends Component {
       >
         {({ measure }) => (
           <div style={style}>
-            <Story story={story} htmlRendered={measure} />
+            {index == stories.length && <div style={style}>...</div>}
+            {story && <Story story={story} htmlRendered={measure} />}
           </div>
         )}
       </CellMeasurer>
@@ -40,31 +43,53 @@ export default class List extends Component {
     }
   }
 
+  registerScroller(list) {
+    this.scroller = list;
+    this._registerList(list);
+  }
+
+  isRowLoaded({ index }) {
+    return index < this.props.stories.length;
+  }
+
   render() {
-    const { stories } = this.props;
+    const { stories, fetchNextPage } = this.props;
     return (
-      <WindowScroller>
-        {({ height, isScrolling, scrollTop, onChildScroll }) => (
-          <AutoSizer disableHeight>
-            {({ width }) => (
-              <VirtualizedList
-                autoHeight
-                deferredMeasurementCache={this._cache}
-                height={height}
-                width={width}
-                overscanRowCount={1}
-                isScrolling={isScrolling}
-                scrollTop={scrollTop}
-                onScroll={onChildScroll}
-                rowCount={stories.length}
-                rowHeight={this._cache.rowHeight}
-                rowRenderer={this.rowRenderer}
-                ref={(l) => this.scroller = l}
-              />
-            )}
-          </AutoSizer>
-        )}
-      </WindowScroller>
+      <InfiniteLoader
+        isRowLoaded={this.isRowLoaded}
+        loadMoreRows={fetchNextPage}
+        rowCount={stories.length + 1}
+      >
+         {({ onRowsRendered, registerChild }) => {
+           this._registerList = registerChild;
+
+           return (
+            <WindowScroller>
+              {({ height, isScrolling, scrollTop, onChildScroll }) => (
+                <AutoSizer disableHeight>
+                  {({ width }) => (
+                    <VirtualizedList
+                      autoHeight
+                      deferredMeasurementCache={this._cache}
+                      height={height}
+                      width={width}
+                      overscanRowCount={1}
+                      onRowsRendered={onRowsRendered}
+                      isScrolling={isScrolling}
+                      scrollTop={scrollTop}
+                      onScroll={onChildScroll}
+                      rowCount={stories.length + 1}
+                      rowHeight={this._cache.rowHeight}
+                      rowRenderer={this.rowRenderer}
+                      ref={this.registerScroller}
+                    />
+                  )}
+                </AutoSizer>
+              )}
+            </WindowScroller>
+          )}
+         }
+      </InfiniteLoader>
     );
   }
 }

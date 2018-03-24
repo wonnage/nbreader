@@ -57,7 +57,7 @@ class Reader extends Component {
   render() {
     return (
       <div>
-        <List stories={Object.values(this.props.stories)} currentPageStart={(this.state.query.page - 1) * PAGE_SIZE} />
+        <List stories={Object.values(this.props.stories)} fetchNextPage={this.nextPage} />
         <button onClick={this.nextPage}>GIVE ME MORE</button>
       </div>
     );
