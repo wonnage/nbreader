@@ -1,0 +1,9 @@
+{
+  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:import/recommended"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true
+  },
+  "parserOptions": { "ecmaVersion": 2018 }
+}
