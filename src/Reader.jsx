@@ -41,11 +41,11 @@ class Reader extends Component {
   }
 
   fetchStories() {
-    if (_isEmpty(this.props.feeds)) { return; }
+    if (_isEmpty(Object.keys(this.props.feeds))) { return; }
     axios.get('https://newsblur.com/reader/river_stories', { params: {
       feeds: Object.keys(this.props.feeds),
       ...this.state.query,
-    } }).then(({ data: { stories, ps, nt } }) => {
+    } }).then(({ data: { stories } }) => {
       const hashToStories = stories.reduce((hs, story) => {
         hs[story.story_hash] = story;
         return hs;

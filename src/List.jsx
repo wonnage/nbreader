@@ -73,7 +73,7 @@ export default class List extends Component {
                       deferredMeasurementCache={this._cache}
                       height={height}
                       width={width}
-                      overscanRowCount={1}
+                      overscanRowCount={3}
                       onRowsRendered={onRowsRendered}
                       isScrolling={isScrolling}
                       scrollTop={scrollTop}
@@ -82,6 +82,8 @@ export default class List extends Component {
                       rowHeight={this._cache.rowHeight}
                       rowRenderer={this.rowRenderer}
                       ref={this.registerScroller}
+                      containerStyle={{ overflow: 'visible' }}
+                      style={{ overflowX: 'visible', overflowY: 'visible' }}
                     />
                   )}
                 </AutoSizer>

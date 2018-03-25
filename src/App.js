@@ -14,8 +14,9 @@ class App extends Component {
         this.props.dispatch({ type: 'login' });
         this.props.dispatch({ type: 'feedsLoad', payload: { feeds } });
       }
-    });
+    })
   }
+
   render() {
     const { login } = this.props;
     return (
@@ -26,7 +27,9 @@ class App extends Component {
         </header>
         <Route path="/login" component={Login} />
         {!login && <Redirect to={{ pathname: '/login' }} />}
-        {login && <Reader />}
+        <div style={{ maxWidth: '750px', marginLeft: 'auto', marginRight: 'auto' }}>
+          {login && <Reader />}
+        </div>
       </div>
     );
   }
