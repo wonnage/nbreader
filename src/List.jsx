@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { CellMeasurer, CellMeasurerCache, List as VirtualizedList, WindowScroller, AutoSizer, InfiniteLoader } from 'react-virtualized';
 import Story from './Story.jsx';
+import _isEqual from 'lodash/isEqual';
 
 export default class List extends Component {
   constructor(props) {
@@ -12,6 +13,10 @@ export default class List extends Component {
     this.rowRenderer = this.rowRenderer.bind(this);
     this.registerScroller = this.registerScroller.bind(this);
     this.isRowLoaded = this.isRowLoaded.bind(this);
+    this.onScroll = this.onScroll.bind(this);
+    this.state = {
+      scrollTop: 0,
+    };
   }
 
   rowRenderer({ index, key, parent, style }) {
@@ -29,17 +34,26 @@ export default class List extends Component {
       >
         {({ measure }) => (
           <div style={style}>
-            {index == stories.length && <div style={style}>...</div>}
-            {story && <Story story={story} htmlRendered={measure} />}
+            {index == stories.length && <div>...</div>}
+            {story &&
+              <Story
+                story={story}
+                htmlRendered={measure}
+                index={index}
+                top={style.top}
+                height={style.height}
+                scrollTop={this.state.scrollTop}
+              />
+            }
           </div>
         )}
       </CellMeasurer>
     );
   }
 
-  componentDidUpdate({ currentPageStart: prevStart }) {
-    if (prevStart !== this.props.currentPageStart && this.scroller) {
-      this.scroller.scrollToRow(this.props.currentPageStart);
+  componentDidUpdate({ feeds: prevFeeds }) {
+    if (!_isEqual(this.props.feeds, prevFeeds) && this.loader) {
+      this.loader.resetLoadMoreRowsCache(true);
     }
   }
 
@@ -52,42 +66,52 @@ export default class List extends Component {
     return index < this.props.stories.length;
   }
 
+  onScroll(pos) {
+    this._onChildScroll(pos);
+    this.setState({ scrollTop: pos.scrollTop });
+  }
+
   render() {
-    const { stories, fetchNextPage } = this.props;
+    const { stories, fetchStories } = this.props;
     return (
       <InfiniteLoader
+        ref={(r) => this.loader = r}
         isRowLoaded={this.isRowLoaded}
-        loadMoreRows={fetchNextPage}
+        loadMoreRows={fetchStories}
         rowCount={stories.length + 1}
+        threshold={3}
       >
          {({ onRowsRendered, registerChild }) => {
            this._registerList = registerChild;
 
            return (
             <WindowScroller>
-              {({ height, isScrolling, scrollTop, onChildScroll }) => (
-                <AutoSizer disableHeight>
-                  {({ width }) => (
-                    <VirtualizedList
-                      autoHeight
-                      deferredMeasurementCache={this._cache}
-                      height={height}
-                      width={width}
-                      overscanRowCount={3}
-                      onRowsRendered={onRowsRendered}
-                      isScrolling={isScrolling}
-                      scrollTop={scrollTop}
-                      onScroll={onChildScroll}
-                      rowCount={stories.length + 1}
-                      rowHeight={this._cache.rowHeight}
-                      rowRenderer={this.rowRenderer}
-                      ref={this.registerScroller}
-                      containerStyle={{ overflow: 'visible' }}
-                      style={{ overflowX: 'visible', overflowY: 'visible' }}
-                    />
-                  )}
-                </AutoSizer>
-              )}
+              {({ height, isScrolling, scrollTop, onChildScroll }) => {
+                this._onChildScroll = onChildScroll;
+                return (
+                  <AutoSizer disableHeight>
+                    {({ width }) => (
+                      <VirtualizedList
+                        autoHeight
+                        deferredMeasurementCache={this._cache}
+                        height={height}
+                        width={width}
+                        overscanRowCount={1}
+                        onRowsRendered={onRowsRendered}
+                        isScrolling={isScrolling}
+                        scrollTop={scrollTop}
+                        onScroll={this.onScroll}
+                        rowCount={stories.length + 1}
+                        rowHeight={this._cache.rowHeight}
+                        rowRenderer={this.rowRenderer}
+                        ref={this.registerScroller}
+                        containerStyle={{ overflow: 'visible' }}
+                        style={{ overflowX: 'visible', overflowY: 'visible' }}
+                      />
+                    )}
+                  </AutoSizer>
+                );
+              }}
             </WindowScroller>
           )}
          }

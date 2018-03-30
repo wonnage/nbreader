@@ -5,14 +5,19 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux'
-import { createStore } from 'redux';
+import { createStore, compose } from 'redux';
+import persistState from 'redux-localstorage';
 import axios from 'axios';
 import 'react-virtualized/styles.css'
 
 axios.defaults.withCredentials = true;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const enhancer = composeEnhancers(
+  persistState(['feeds', 'viewSettings']),
+);
 
 const initialState = {
-  login: false,
+  login: true,
   stories: {},
   feeds: {},
   viewSettings: {}
@@ -24,6 +29,11 @@ function newsblur(state = initialState, action) {
       return {
         ...state,
         login: true,
+      };
+    case 'logout':
+      return {
+        ...state,
+        login: false,
       };
     case 'feedsLoad':
       return {
@@ -40,6 +50,11 @@ function newsblur(state = initialState, action) {
         ...state,
         viewSettings: { ...state.viewSettings, ...action.payload.viewSettings },
       };
+    case 'activeStoryIndex':
+      return {
+        ...state,
+        activeStoryIndex: action.payload,
+      };
     default:
       return state;
   }
@@ -47,7 +62,8 @@ function newsblur(state = initialState, action) {
 
 const store = createStore(
   newsblur,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  initialState,
+  enhancer,
 );
 
 ReactDOM.render(

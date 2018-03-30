@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import _isEqual from 'lodash/isEqual';
 import _isEmpty from 'lodash/isEmpty';
 import axios from 'axios';
 import List from './List.jsx';
@@ -12,7 +11,6 @@ class Reader extends Component {
     super(props);
     this.state = {
       query: {
-        page: 1,
         order: 'newest',
         read_filter: 'unread',
         include_hidden: false,
@@ -20,45 +18,36 @@ class Reader extends Component {
       },
     }
 
-    this.nextPage = this.nextPage.bind(this);
+    this.fetchStories = this.fetchStories.bind(this);
+    this.page = 1;
   }
 
-  nextPage() {
-    this.setState({ query: { ...this.state.query, page: this.state.query.page + 1 } });
-  }
-
-  componentDidMount() {
-    this.fetchStories();
-  }
-
-  componentDidUpdate({ feeds: prevFeeds, stories: prevStories }, { query: prevQuery }) {
-    if (!_isEqual(this.props.feeds, prevFeeds) ||
-      !_isEqual(this.props.stories, prevStories) ||
-      !_isEqual(this.state.query, prevQuery)
-    ) {
-      this.fetchStories();
-    }
-  }
-
-  fetchStories() {
+  fetchStories({ startIndex, stopIndex }) {
     if (_isEmpty(Object.keys(this.props.feeds))) { return; }
-    axios.get('https://newsblur.com/reader/river_stories', { params: {
+    if (this.storiesFetching) { return; }
+    this.storiesFetching = true;
+    return axios.get('https://newsblur.com/reader/river_stories', { params: {
       feeds: Object.keys(this.props.feeds),
       ...this.state.query,
-    } }).then(({ data: { stories } }) => {
+      page: this.page,
+    } }).then(({ data: { stories, hidden_stories_removed } }) => {
+      this.page += 1;
+      this.storiesFetching = false;
       const hashToStories = stories.reduce((hs, story) => {
         hs[story.story_hash] = story;
         return hs;
       }, {});
       this.props.dispatch({ type: 'storiesLoad', payload: { stories: hashToStories } });
+      if (startIndex + stories.length < stopIndex + 1 && hidden_stories_removed > 0) {
+        return this.fetchStories({ startIndex: startIndex + stories.length, stopIndex });
+      }
     });
   }
 
   render() {
     return (
       <div>
-        <List stories={Object.values(this.props.stories)} fetchNextPage={this.nextPage} />
-        <button onClick={this.nextPage}>GIVE ME MORE</button>
+        <List feeds={Object.values(this.props.feeds)} stories={Object.values(this.props.stories)} fetchStories={this.fetchStories} />
       </div>
     );
   }

@@ -13,6 +13,8 @@ class App extends Component {
       if (authenticated) {
         this.props.dispatch({ type: 'login' });
         this.props.dispatch({ type: 'feedsLoad', payload: { feeds } });
+      } else {
+        this.props.dispatch({ type: 'logout' });
       }
     })
   }

@@ -25,11 +25,25 @@ h1,h2,h3,h4,h5,h6 {
 
 .storyHeader {
   position: sticky;
-  border-bottom: 1px solid black;
   margin-bottom: -1px;
   top: 0;
   background: white;
   padding: 8px 12px;
+  color: black;
+}
+
+.storyHeader .title {
+  font-size: 2em;
+  font-weight: bold;
+  color: black;
+}
+
+.storyHeader.read {
+  color: #777;
+}
+
+.storyHeader.read .title {
+  color: #777;
 }
 
 @media (max-width: 750px) {
