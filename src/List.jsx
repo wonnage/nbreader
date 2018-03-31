@@ -85,7 +85,7 @@ export default class List extends Component {
            this._registerList = registerChild;
 
            return (
-            <WindowScroller>
+             <WindowScroller>
               {({ height, isScrolling, scrollTop, onChildScroll }) => {
                 this._onChildScroll = onChildScroll;
                 return (
@@ -98,7 +98,8 @@ export default class List extends Component {
                         width={width}
                         overscanRowCount={1}
                         onRowsRendered={onRowsRendered}
-                        isScrolling={isScrolling}
+                        scrollingResetTimeInterval={0}
+                        isScrolling={false}
                         scrollTop={scrollTop}
                         onScroll={this.onScroll}
                         rowCount={stories.length + 1}

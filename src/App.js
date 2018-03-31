@@ -8,7 +8,15 @@ import Login from './Login.jsx';
 import Reader from './Reader.jsx';
 
 class App extends Component {
-  componentDidMount() {
+  componentDidMount() { this.initialLoginAndLoad(); }
+
+  componentDidUpdate({ login: prevLogin }) {
+    if (this.props.login !== prevLogin && this.props.login) {
+      this.initialLoginAndLoad();
+    }
+  }
+
+  initialLoginAndLoad() {
     axios.get('https://newsblur.com/reader/feeds?v=2&flat=true').then(({ data: { authenticated, feeds } }) => {
       if (authenticated) {
         this.props.dispatch({ type: 'login' });
@@ -16,7 +24,7 @@ class App extends Component {
       } else {
         this.props.dispatch({ type: 'logout' });
       }
-    })
+    }).catch(() => this.props.dispatch({ type: 'logout' }));
   }
 
   render() {

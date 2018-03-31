@@ -17,7 +17,7 @@ const enhancer = composeEnhancers(
 );
 
 const initialState = {
-  login: true,
+  login: false,
   stories: {},
   feeds: {},
   viewSettings: {}
@@ -69,7 +69,7 @@ const store = createStore(
 ReactDOM.render(
   (
     <Provider store={store}>
-      <BrowserRouter>
+      <BrowserRouter basename="/nbreader">
         <App />
       </BrowserRouter>
     </Provider>
