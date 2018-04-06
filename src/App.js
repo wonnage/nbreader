@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { withRouter } from 'react-router';
 import { Route, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import { connect } from 'react-redux'
@@ -35,8 +36,8 @@ class App extends Component {
           <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">NBREADER</h1>
         </header>
-        <Route path="/login" component={Login} />
         {!login && <Redirect to={{ pathname: '/login' }} />}
+        <Route path="/login" component={Login} />
         <div style={{ maxWidth: '750px', marginLeft: 'auto', marginRight: 'auto' }}>
           {login && <Reader />}
         </div>
@@ -45,4 +46,4 @@ class App extends Component {
   }
 }
 
-export default connect(({ login }) => ({ login }))(App);
+export default withRouter(connect(({ login }) => ({ login }))(App));
