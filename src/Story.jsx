@@ -21,7 +21,7 @@ const propTypes = {
   scrollTop: PropTypes.number,
   top: PropTypes.number,
   height: PropTypes.number,
-  htmlRendered: PropTypes.bool,
+  htmlRendered: PropTypes.func,
 };
 
 export class Story extends Component {
@@ -112,7 +112,6 @@ export class Story extends Component {
           borderBottom: '1px solid black',
         }}
       >
-        <Waypoint onEnter={this.markAsActive} topOffset="-40%" />
         <StoryHeader
           scrollTop={scrollTop}
           top={top}
@@ -137,5 +136,5 @@ export class Story extends Component {
 Story.propTypes = propTypes;
 
 export default connect(({ viewSettings, feeds }, { story }) => (
-  { viewSettings: viewSettings[story.story_feed_it], feeds }
+  { viewSettings: viewSettings[story.story_feed_id], feeds }
 ))(Story);
