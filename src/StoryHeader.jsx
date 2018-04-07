@@ -20,6 +20,10 @@ export default class StoryHeader extends Component {
       if(!this.state.collapse) {
         this.setState({ collapse: true });
       }
+    } else {
+      if(this.state.collapse) {
+        this.setState({ collapse: false });
+      }
     }
   }
 
