@@ -8,21 +8,15 @@ export default class StoryHeader extends Component {
     this.state = {
       collapse: false,
     }
-
-    this.updateCollapse = _debounce(this.updateCollapse.bind(this), 50, { leading: true, trailing: true });
   }
 
   componentWillReceiveProps({ scrollTop, top, height }) {
-    if (scrollTop > top + height - 100) { return; }
+    if (scrollTop > top + height) { return; }
     this.updateCollapse({ scrollTop, top });
   }
 
   updateCollapse({ scrollTop: nextScrollTop, top: nextTop }) {
-    if (nextScrollTop < this.props.scrollTop) {
-      if (this.state.collapse) {
-        this.setState({ collapse: false });
-      }
-    } else if (nextScrollTop > nextTop && nextScrollTop > this.props.scrollTop) {
+    if (nextScrollTop > nextTop) {
       if(!this.state.collapse) {
         this.setState({ collapse: true });
       }
