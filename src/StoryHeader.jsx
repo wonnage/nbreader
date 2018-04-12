@@ -1,32 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import _debounce from 'lodash/debounce';
 
 export default class StoryHeader extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      collapse: false,
-    }
-  }
-
-  componentWillReceiveProps({ scrollTop, top, height }) {
-    if (scrollTop > top + height) { return; }
-    this.updateCollapse({ scrollTop, top });
-  }
-
-  updateCollapse({ scrollTop: nextScrollTop, top: nextTop }) {
-    if (nextScrollTop > nextTop) {
-      if(!this.state.collapse) {
-        this.setState({ collapse: true });
-      }
-    } else {
-      if(this.state.collapse) {
-        this.setState({ collapse: false });
-      }
-    }
-  }
-
   render() {
     const {
       scrollTop,
@@ -44,7 +19,7 @@ export default class StoryHeader extends Component {
       >
         <div>{feed.feed_title} &#8227; {new Date(story.story_timestamp * 1000).toLocaleString()}</div>
         <a href={story.story_permalink} style={{ color: 'black', textDecoration: 'none', display: 'block' }}>
-          <div className={cx('title', { collapse: this.state.collapse })}>{story.story_title}</div>
+          <div className="title collapse">{story.story_title}</div>
           <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 3, background: 'black', overflow: 'hidden' }} >
             <div style={{ position: 'absolute', transition: 'right 0.10s', width: '100%', bottom: 0, right: `${100 - progressRatio * 100}%`, height: 3, background: feedColor }}  />
           </div>
